@@ -32,7 +32,20 @@ void setup()
   }
 
   // TODO: what should MaxCurrent be?  What does this do?
-  INA.setMaxCurrentShunt(5, 0.001);
+  int err = INA.setMaxCurrentShunt(5, 0.001);
+  if (err != INA226_ERR_NONE)
+  {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("MaxCurrentShunt");
+    lcd.setCursor(0, 1);
+    lcd.print("Failed: ");
+    char out[8] = {0};
+    snprintf(out, 7, "%x", err);
+    lcd.print(out);
+    while (true)
+      delay(1000);
+  }
   //average:
     // INA226_1_SAMPLE     = 0, //default?
     // INA226_4_SAMPLES    = 1,
