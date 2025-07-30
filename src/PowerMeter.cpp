@@ -16,7 +16,7 @@ void setup()
   lcd.setCursor(0, 1);
   lcd.print("By Chris Weiland");
 
-  delay(1000);
+  delay(2000);
 
   Wire.begin();
   if (!INA.begin())
