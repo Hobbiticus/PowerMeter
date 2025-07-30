@@ -82,7 +82,7 @@ void loop()
   snprintf(out, 7, "%6.3fA", (double)INA.getCurrent());
   lcd.print(out);
   lcd.setCursor(0, 1);
-  snprintf(out, 7, "%6.3fmV", (double)INA.getShuntVoltage_mV());
+  snprintf(out, 7, "%5.3fmV", (double)INA.getShuntVoltage_mV());
   lcd.print(out);
   lcd.setCursor(8, 1);
   snprintf(out, 7, "%6.3fW", (double)INA.getPower());
