@@ -33,6 +33,28 @@ void setup()
 
   // TODO: what should MaxCurrent be?  What does this do?
   INA.setMaxCurrentShunt(5, 0.001);
+  //average:
+    // INA226_1_SAMPLE     = 0, //default?
+    // INA226_4_SAMPLES    = 1,
+    // INA226_16_SAMPLES   = 2,
+    // INA226_64_SAMPLES   = 3,
+    // INA226_128_SAMPLES  = 4,
+    // INA226_256_SAMPLES  = 5,
+    // INA226_512_SAMPLES  = 6,
+    // INA226_1024_SAMPLES = 7
+  //INA.setAverage();
+  //conversion times:
+    // INA226_140_us  = 0,
+    // INA226_204_us  = 1,
+    // INA226_332_us  = 2,
+    // INA226_588_us  = 3,
+    // INA226_1100_us = 4, //default?
+    // INA226_2100_us = 5,
+    // INA226_4200_us = 6,
+    // INA226_8300_us = 7
+  //INA.setBusVoltageConversionTime();
+  //INA.setShuntVoltageConversionTime();
+
 
   lcd.clear();
 }
