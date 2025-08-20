@@ -4,21 +4,24 @@
 #include "INA226.h"
 
 LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
-INA226 INA(0x40); //TODO: what address?
+INA226 INA(0x40);
 
 void setup()
 {
   Serial.begin(115200);
 
+  lcd.begin(16, 2);
+  lcd.noCursor();
   lcd.clear();
   lcd.setCursor(1, 0);
   lcd.print("Power Analyzer");
   lcd.setCursor(0, 1);
   lcd.print("By Chris Weiland");
 
+  Wire.begin();
   delay(2000);
 
-  Wire.begin();
+  Serial.println("Starting INA226...");
   if (!INA.begin())
   {
     Serial.println("could not connect. Fix and Reboot");
@@ -30,9 +33,10 @@ void setup()
     while (true)
       delay(1000);
   }
+  Serial.println("INA Started!");
 
   // TODO: what should MaxCurrent be?  What does this do?
-  int err = INA.setMaxCurrentShunt(5, 0.001);
+  int err = INA.setMaxCurrentShunt(2.5, 0.03);
   if (err != INA226_ERR_NONE)
   {
     lcd.clear();
@@ -55,7 +59,7 @@ void setup()
     // INA226_256_SAMPLES  = 5,
     // INA226_512_SAMPLES  = 6,
     // INA226_1024_SAMPLES = 7
-  //INA.setAverage();
+  INA.setAverage(INA226_256_SAMPLES);
   //conversion times:
     // INA226_140_us  = 0,
     // INA226_204_us  = 1,
@@ -72,21 +76,54 @@ void setup()
   lcd.clear();
 }
 
+void PrintFloat(float val, int* tens, int* millis)
+{
+  *tens = (int)val;
+  *millis = abs((int)((val - *tens) * 1000));
+}
+
 void loop()
 {
-  char out[8] = {0};
+  if (!INA.waitConversionReady(1000))
+  {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Conversion");
+    lcd.setCursor(0, 1);
+    lcd.print("Not ready");
+    Serial.println("Conversion not ready");
+    return;
+  }
+  char out[9] = {0};
+  int tens, millis;
+
   lcd.setCursor(0, 0);
-  snprintf(out, 7, "%6.3fV", (double)INA.getBusVoltage());
+  PrintFloat(INA.getBusVoltage(), &tens, &millis);
+  snprintf(out, 8, "%2d.%03dV", tens, millis);
   lcd.print(out);
+  Serial.print(out);
+
   lcd.setCursor(8, 0);
-  snprintf(out, 7, "%6.3fA", (double)INA.getCurrent());
+  PrintFloat(INA.getCurrent(), &tens, &millis);
+  snprintf(out, 8, "%2d.%03dA", tens, millis);
   lcd.print(out);
+  Serial.print(out);
+
   lcd.setCursor(0, 1);
-  snprintf(out, 7, "%5.3fmV", (double)INA.getShuntVoltage_mV());
+  PrintFloat(INA.getShuntVoltage_mV(), &tens, &millis);
+  snprintf(out, 8, "%2d.%03dm", tens, millis);
   lcd.print(out);
+  Serial.print(out);
+
   lcd.setCursor(8, 1);
-  snprintf(out, 7, "%6.3fW", (double)INA.getPower());
+  PrintFloat(INA.getPower(), &tens, &millis);
+  snprintf(out, 8, "%2d.%03dW", tens, millis);
   lcd.print(out);
+  Serial.println(out);
+
+  char sout[256] = {0};
+  snprintf(sout, 255, "%6.3f V, %6.3fA, %5.3f mV, %6.3f W\n", (double)INA.getBusVoltage(), (double)INA.getCurrent(), (double)INA.getShuntVoltage_mV(), (double)INA.getPower());
+  Serial.print(sout);
 
   delay(500);
 }
